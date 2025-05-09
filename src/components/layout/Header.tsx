@@ -15,7 +15,7 @@ const Header = () => {
           <Link to="/" className="flex items-center space-x-2">
             <CalendarIcon className="h-6 w-6 text-eventide-500" />
             <span className="text-2xl font-bold text-eventide-500 font-poppins">
-              Eventide
+              DanEvents
             </span>
           </Link>
 

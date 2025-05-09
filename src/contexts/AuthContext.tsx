@@ -20,12 +20,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // This would connect to a backend in a real app
   useEffect(() => {
     // Simulate checking for stored authentication
-    const storedUser = localStorage.getItem('eventideUser');
+    const storedUser = localStorage.getItem('danEventsUser');
     if (storedUser) {
       try {
         setUser(JSON.parse(storedUser));
       } catch (e) {
-        localStorage.removeItem('eventideUser');
+        localStorage.removeItem('danEventsUser');
       }
     }
     setIsLoading(false);
@@ -39,16 +39,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
       
+      // Simulate token generation
+      const generateToken = (user: string) => {
+        return `simulated-jwt-${user}-${Date.now()}`;
+      };
+      
       // For demo purposes, we'll just check for admin@example.com/password
       if (email === 'admin@example.com' && password === 'password') {
         const adminUser: User = {
           id: 'admin-id',
           email: 'admin@example.com',
           name: 'Admin User',
-          role: 'admin'
+          role: 'admin',
+          token: generateToken('admin')
         };
         setUser(adminUser);
-        localStorage.setItem('eventideUser', JSON.stringify(adminUser));
+        localStorage.setItem('danEventsUser', JSON.stringify(adminUser));
       } 
       // Regular user login with any other credentials
       else {
@@ -56,10 +62,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           id: 'user-' + Date.now(),
           email,
           name: email.split('@')[0],
-          role: 'user'
+          role: 'user',
+          token: generateToken('user')
         };
         setUser(regularUser);
-        localStorage.setItem('eventideUser', JSON.stringify(regularUser));
+        localStorage.setItem('danEventsUser', JSON.stringify(regularUser));
       }
     } catch (error) {
       console.error('Login failed', error);
@@ -81,11 +88,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         id: 'user-' + Date.now(),
         email,
         name,
-        role: 'user'
+        role: 'user',
+        token: `simulated-jwt-${name}-${Date.now()}`
       };
       
       setUser(newUser);
-      localStorage.setItem('eventideUser', JSON.stringify(newUser));
+      localStorage.setItem('danEventsUser', JSON.stringify(newUser));
     } catch (error) {
       console.error('Registration failed', error);
       throw new Error('Registration failed. Please try again.');
@@ -96,7 +104,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem('eventideUser');
+    localStorage.removeItem('danEventsUser');
   };
 
   const isAdmin = user?.role === 'admin';

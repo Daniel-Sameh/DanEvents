@@ -16,7 +16,7 @@ const HomePage = () => {
       <div className="space-y-8">
         <section className="text-center space-y-4">
           <h1 className="text-4xl md:text-5xl font-bold font-poppins bg-gradient-to-r from-eventide-500 to-eventide-700 text-transparent bg-clip-text">
-            Discover Amazing Events
+            DanEvents - Find Amazing Events
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             Find and book tickets for the best events in your area. From concerts to workshops, we've got you covered.

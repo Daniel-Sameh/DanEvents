@@ -6,6 +6,7 @@ export interface User {
   email: string;
   name: string;
   role: UserRole;
+  token?: string; // Add auth token to user object
 }
 
 export interface Event {
@@ -26,4 +27,11 @@ export interface Booking {
   eventId: string;
   userId: string;
   bookedAt: string;
+}
+
+// API response types
+export interface ApiResponse<T> {
+  data?: T;
+  error?: string;
+  success: boolean;
 }
