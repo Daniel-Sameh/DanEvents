@@ -28,7 +28,7 @@ const EventCard: React.FC<EventCardProps> = ({ event }) => {
       <CardHeader className="pb-2">
         <div className="flex justify-between items-start">
           <h3 className="font-semibold text-lg line-clamp-1">{event.name}</h3>
-          <span className="text-eventide-500 font-medium">${event.price}</span>
+          <span className="text-danevents-500 font-medium">${event.price}</span>
         </div>
         <div className="flex items-center text-sm text-muted-foreground mt-1">
           <CalendarIcon className="h-3.5 w-3.5 mr-1" />

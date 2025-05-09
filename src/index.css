@@ -58,6 +58,6 @@
   }
   
   .btn-primary {
-    @apply bg-eventide-500 text-white hover:bg-eventide-600 transition-colors;
+    @apply bg-danevents-500 text-white hover:bg-danevents-600 transition-colors;
   }
 }

@@ -13,8 +13,8 @@ const Header = () => {
       <div className="container mx-auto py-4 px-4 md:px-6">
         <div className="flex justify-between items-center">
           <Link to="/" className="flex items-center space-x-2">
-            <CalendarIcon className="h-6 w-6 text-eventide-500" />
-            <span className="text-2xl font-bold text-eventide-500 font-poppins">
+            <CalendarIcon className="h-6 w-6 text-danevents-500" />
+            <span className="text-2xl font-bold text-danevents-500 font-poppins">
               DanEvents
             </span>
           </Link>

@@ -85,7 +85,7 @@ const EventDetailsPage = () => {
             <div className="space-y-2">
               <div className="flex justify-between items-start">
                 <h1 className="text-3xl font-bold font-poppins">{event.name}</h1>
-                <span className="text-xl font-semibold text-eventide-500">${event.price.toFixed(2)}</span>
+                <span className="text-xl font-semibold text-danevents-500">${event.price.toFixed(2)}</span>
               </div>
               <div className="flex items-center text-muted-foreground">
                 <CalendarIcon className="h-4 w-4 mr-1.5" />

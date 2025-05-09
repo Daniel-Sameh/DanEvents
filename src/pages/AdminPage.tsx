@@ -96,7 +96,7 @@ const AdminPage = () => {
               <h2 className="text-xl font-semibold mb-4">Manage Events</h2>
               {isLoading ? (
                 <div className="py-10 flex justify-center">
-                  <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-eventide-500"></div>
+                  <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-danevents-500"></div>
                 </div>
               ) : (
                 <EventsTable

@@ -15,7 +15,7 @@ const HomePage = () => {
     <Layout>
       <div className="space-y-8">
         <section className="text-center space-y-4">
-          <h1 className="text-4xl md:text-5xl font-bold font-poppins bg-gradient-to-r from-eventide-500 to-eventide-700 text-transparent bg-clip-text">
+          <h1 className="text-4xl md:text-5xl font-bold font-poppins bg-gradient-to-r from-danevents-500 to-danevents-700 text-transparent bg-clip-text">
             DanEvents - Find Amazing Events
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
@@ -37,7 +37,7 @@ const HomePage = () => {
 
           {isLoading ? (
             <div className="flex justify-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-eventide-500"></div>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-danevents-500"></div>
             </div>
           ) : events.length === 0 ? (
             <div className="text-center py-12">
