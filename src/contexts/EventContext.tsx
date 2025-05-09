@@ -1,8 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Event, Booking } from '@/types';
 import { useAuth } from './AuthContext';
-import { useToast } from "@/hooks/use-toast";
-import { eventApi, bookingApi } from '@/services/api';
+import { useToast } from "@/components/ui/use-toast";
+import { api } from '@/services/api';
 
 interface EventContextType {
   events: Event[];
@@ -98,30 +98,32 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [events, setEvents] = useState<Event[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const { user } = useAuth();
+  const { user, authToken } = useAuth();
   const { toast } = useToast();
 
   // Load events and bookings
   useEffect(() => {
     const loadData = async () => {
       setIsLoading(true);
+      console.log('Fetching events from API...');
+      
       try {
-        // Simulate API call to get events
-        const storedEvents = localStorage.getItem('danEventsEvents');
-        if (storedEvents) {
-          // Use existing stored events
-          const fetchedEvents = await eventApi.getAllEvents();
+        // In a real app, these would be API calls
+        
+        // Simulate API call to fetch events
+        const fetchedEvents = await api.getEvents();
+        if (fetchedEvents) {
           setEvents(fetchedEvents);
         } else {
-          // First load: use sample data and store it
-          localStorage.setItem('danEventsEvents', JSON.stringify(sampleEvents));
+          // Use sample data for first load
           setEvents(sampleEvents);
+          localStorage.setItem('daneventsEvents', JSON.stringify(sampleEvents));
         }
         
-        // Fetch user bookings if user is logged in
         if (user) {
-          const userBookings = await bookingApi.getUserBookings(user.id);
-          setBookings(userBookings);
+          // Simulate API call to fetch user's bookings if logged in
+          const fetchedBookings = await api.getUserBookings(user.id);
+          setBookings(fetchedBookings);
         } else {
           setBookings([]);
         }
@@ -138,7 +140,7 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     };
 
     loadData();
-  }, [user, toast]);
+  }, [user, toast, authToken]);
 
   // Get event by ID
   const getEvent = (id: string) => {
@@ -152,16 +154,19 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
 
     try {
-      // Call the API to create the event
-      const newEvent = await eventApi.createEvent(eventData);
+      // Call API to create event
+      const newEvent = await api.createEvent(eventData, authToken);
       
       // Update local state
-      setEvents(prevEvents => [...prevEvents, newEvent]);
+      const updatedEvents = [...events, newEvent];
+      setEvents(updatedEvents);
       
       toast({
         title: "Event created",
         description: "Your event has been created successfully.",
       });
+      
+      return Promise.resolve();
     } catch (error) {
       console.error('Failed to add event', error);
       toast({
@@ -169,7 +174,7 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         description: "There was an error creating the event.",
         variant: "destructive"
       });
-      throw error;
+      return Promise.reject(error);
     }
   };
 
@@ -180,18 +185,24 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
 
     try {
-      // Call API to update the event
-      const updatedEvent = await eventApi.updateEvent(id, eventData);
+      // Call API to update event
+      await api.updateEvent(id, eventData, authToken);
       
       // Update local state
-      setEvents(prevEvents => 
-        prevEvents.map(event => event.id === id ? updatedEvent : event)
+      const updatedEvents = events.map(event => 
+        event.id === id 
+          ? { ...event, ...eventData, updatedAt: new Date().toISOString() } 
+          : event
       );
+      
+      setEvents(updatedEvents);
       
       toast({
         title: "Event updated",
         description: "The event has been updated successfully.",
       });
+      
+      return Promise.resolve();
     } catch (error) {
       console.error('Failed to update event', error);
       toast({
@@ -199,7 +210,7 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         description: "There was an error updating the event.",
         variant: "destructive"
       });
-      throw error;
+      return Promise.reject(error);
     }
   };
 
@@ -210,19 +221,23 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
 
     try {
-      // Call API to delete the event
-      await eventApi.deleteEvent(id);
+      // Call API to delete event
+      await api.deleteEvent(id, authToken);
       
       // Update local state
-      setEvents(prevEvents => prevEvents.filter(event => event.id !== id));
+      const updatedEvents = events.filter(event => event.id !== id);
+      setEvents(updatedEvents);
       
       // Remove associated bookings
-      setBookings(prevBookings => prevBookings.filter(booking => booking.eventId !== id));
+      const updatedBookings = bookings.filter(booking => booking.eventId !== id);
+      setBookings(updatedBookings);
       
       toast({
         title: "Event deleted",
         description: "The event has been deleted successfully.",
       });
+      
+      return Promise.resolve();
     } catch (error) {
       console.error('Failed to delete event', error);
       toast({
@@ -230,7 +245,7 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         description: "There was an error deleting the event.",
         variant: "destructive"
       });
-      throw error;
+      return Promise.reject(error);
     }
   };
 
@@ -247,19 +262,19 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
 
     try {
-      // Get the auth token (in a real app, this would be from your auth system)
-      const authToken = user.token || 'simulated-token';
-      
-      // Call API to book the event
-      const newBooking = await bookingApi.bookEvent(user.id, eventId, authToken);
+      // Call API to book event
+      const newBooking = await api.bookEvent(eventId, user.id, authToken);
       
       // Update local state
-      setBookings(prevBookings => [...prevBookings, newBooking]);
+      const updatedBookings = [...bookings, newBooking];
+      setBookings(updatedBookings);
       
       toast({
         title: "Booking confirmed!",
         description: `You have successfully booked a ticket for "${event.name}".`,
       });
+      
+      return Promise.resolve();
     } catch (error) {
       console.error('Failed to book event', error);
       toast({
@@ -267,7 +282,7 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         description: "There was an error processing your booking.",
         variant: "destructive"
       });
-      throw error;
+      return Promise.reject(error);
     }
   };
 

@@ -1,116 +1,101 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User } from '@/types';
+import { api } from '@/services/api';
 
 interface AuthContextType {
   user: User | null;
-  isLoading: boolean;
+  isAdmin: boolean;
+  authToken: string | null;
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
-  isAdmin: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [authToken, setAuthToken] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
 
-  // This would connect to a backend in a real app
   useEffect(() => {
-    // Simulate checking for stored authentication
-    const storedUser = localStorage.getItem('danEventsUser');
-    if (storedUser) {
+    // Check for existing user session on app load
+    const storedUser = localStorage.getItem('daneventsCurrentUser');
+    const storedToken = localStorage.getItem('daneventsAuthToken');
+    
+    if (storedUser && storedToken) {
       try {
-        setUser(JSON.parse(storedUser));
-      } catch (e) {
-        localStorage.removeItem('danEventsUser');
+        const parsedUser = JSON.parse(storedUser);
+        setUser(parsedUser);
+        setAuthToken(storedToken);
+        setIsAdmin(parsedUser.role === 'admin');
+      } catch (error) {
+        console.error('Failed to parse stored user data', error);
+        // Clear invalid data
+        localStorage.removeItem('daneventsCurrentUser');
+        localStorage.removeItem('daneventsAuthToken');
       }
     }
-    setIsLoading(false);
   }, []);
 
   const login = async (email: string, password: string) => {
-    // This would call an API in a real app
-    setIsLoading(true);
-    
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const { user: loggedInUser, token } = await api.login(email, password);
       
-      // Simulate token generation
-      const generateToken = (user: string) => {
-        return `simulated-jwt-${user}-${Date.now()}`;
-      };
+      setUser(loggedInUser);
+      setAuthToken(token);
+      setIsAdmin(loggedInUser.role === 'admin');
       
-      // For demo purposes, we'll just check for admin@example.com/password
-      if (email === 'admin@example.com' && password === 'password') {
-        const adminUser: User = {
-          id: 'admin-id',
-          email: 'admin@example.com',
-          name: 'Admin User',
-          role: 'admin',
-          token: generateToken('admin')
-        };
-        setUser(adminUser);
-        localStorage.setItem('danEventsUser', JSON.stringify(adminUser));
-      } 
-      // Regular user login with any other credentials
-      else {
-        const regularUser: User = {
-          id: 'user-' + Date.now(),
-          email,
-          name: email.split('@')[0],
-          role: 'user',
-          token: generateToken('user')
-        };
-        setUser(regularUser);
-        localStorage.setItem('danEventsUser', JSON.stringify(regularUser));
-      }
+      // Store in localStorage
+      localStorage.setItem('daneventsCurrentUser', JSON.stringify(loggedInUser));
+      localStorage.setItem('daneventsAuthToken', token);
     } catch (error) {
       console.error('Login failed', error);
-      throw new Error('Login failed. Please try again.');
-    } finally {
-      setIsLoading(false);
+      throw error;
     }
   };
 
   const register = async (name: string, email: string, password: string) => {
-    // This would call an API in a real app
-    setIsLoading(true);
-    
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      const newUser: User = {
-        id: 'user-' + Date.now(),
-        email,
+      const { user: registeredUser, token } = await api.register({
         name,
-        role: 'user',
-        token: `simulated-jwt-${name}-${Date.now()}`
-      };
+        email,
+        password
+      });
       
-      setUser(newUser);
-      localStorage.setItem('danEventsUser', JSON.stringify(newUser));
+      setUser(registeredUser);
+      setAuthToken(token);
+      setIsAdmin(registeredUser.role === 'admin');
+      
+      // Store in localStorage
+      localStorage.setItem('daneventsCurrentUser', JSON.stringify(registeredUser));
+      localStorage.setItem('daneventsAuthToken', token);
     } catch (error) {
       console.error('Registration failed', error);
-      throw new Error('Registration failed. Please try again.');
-    } finally {
-      setIsLoading(false);
+      throw error;
     }
   };
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem('danEventsUser');
+    setAuthToken(null);
+    setIsAdmin(false);
+    
+    // Clear from localStorage
+    localStorage.removeItem('daneventsCurrentUser');
+    localStorage.removeItem('daneventsAuthToken');
   };
 
-  const isAdmin = user?.role === 'admin';
-
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, register, logout, isAdmin }}>
+    <AuthContext.Provider value={{
+      user,
+      isAdmin,
+      authToken,
+      login,
+      register,
+      logout
+    }}>
       {children}
     </AuthContext.Provider>
   );
