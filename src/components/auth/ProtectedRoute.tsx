@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -16,7 +17,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   // While checking authentication status, show nothing
   if (isLoading) {
     return <div className="flex justify-center items-center h-[60vh]">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-eventide-500"></div>
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-danevents-500"></div>
     </div>;
   }
 

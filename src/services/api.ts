@@ -1,7 +1,7 @@
 
 // API service for simulating backend calls
 
-import { Event, Booking, User } from '@/types';
+import { Event, Booking, User, UserWithPassword } from '@/types';
 
 // Simulate API call delay
 const simulateAPICall = async <T>(data: T): Promise<T> => {
@@ -16,7 +16,7 @@ export const api = {
     const storedUsers = localStorage.getItem('daneventsUsers');
     const users = storedUsers ? JSON.parse(storedUsers) : [];
     
-    const user = users.find((u: User) => u.email === email);
+    const user = users.find((u: UserWithPassword) => u.email === email);
     if (!user || user.password !== password) {
       throw new Error('Invalid email or password');
     }
@@ -30,16 +30,16 @@ export const api = {
     return simulateAPICall({ user: userWithoutPassword, token });
   },
   
-  register: async (userData: Omit<User, 'id' | 'role'>): Promise<{ user: User; token: string }> => {
+  register: async (userData: { name: string; email: string; password: string }): Promise<{ user: User; token: string }> => {
     const storedUsers = localStorage.getItem('daneventsUsers');
     const users = storedUsers ? JSON.parse(storedUsers) : [];
     
-    const existingUser = users.find((u: User) => u.email === userData.email);
+    const existingUser = users.find((u: UserWithPassword) => u.email === userData.email);
     if (existingUser) {
       throw new Error('Email already in use');
     }
     
-    const newUser = {
+    const newUser: UserWithPassword = {
       ...userData,
       id: `user-${Date.now()}`,
       role: 'user' as const
