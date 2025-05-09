@@ -59,7 +59,7 @@ const sampleEvents: Event[] = [
   {
     id: '4',
     name: 'Business Leadership Summit',
-    description: 'Connect with industry leaders, gain insights on emerging business trends, and develop strategies for success in today's competitive market.',
+    description: 'Connect with industry leaders, gain insights on emerging business trends, and develop strategies for success in today\'s competitive market.',
     category: 'Business',
     date: '2025-09-10T08:30:00',
     venue: 'Grand Hotel Conference Center',
