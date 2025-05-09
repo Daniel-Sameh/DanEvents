@@ -62,6 +62,7 @@ export const api = {
     const storedEvents = localStorage.getItem('daneventsEvents');
     const events = storedEvents ? JSON.parse(storedEvents) : [];
     
+    console.log(`Retrieved ${events.length} events from localStorage`);
     return simulateAPICall(events);
   },
   

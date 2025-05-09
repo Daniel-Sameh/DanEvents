@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Event, Booking } from '@/types';
 import { useAuth } from './AuthContext';
@@ -95,7 +96,7 @@ const sampleEvents: Event[] = [
 ];
 
 export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [events, setEvents] = useState<Event[]>([]);
+  const [events, setEvents] = useState<Event[]>(sampleEvents); // Initialize with sample events
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { user, authToken } = useAuth();
@@ -112,10 +113,12 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         
         // Simulate API call to fetch events
         const fetchedEvents = await api.getEvents();
-        if (fetchedEvents) {
+        if (fetchedEvents && fetchedEvents.length > 0) {
+          console.log('Received events from API:', fetchedEvents.length);
           setEvents(fetchedEvents);
         } else {
-          // Use sample data for first load
+          // Use sample data if API returns empty array
+          console.log('No events found in API, using sample data');
           setEvents(sampleEvents);
           localStorage.setItem('daneventsEvents', JSON.stringify(sampleEvents));
         }
@@ -129,6 +132,8 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         }
       } catch (error) {
         console.error('Failed to load data', error);
+        // Ensure we still have sample events on error
+        setEvents(sampleEvents);
         toast({
           title: "Error loading data",
           description: "Failed to load events and bookings.",
