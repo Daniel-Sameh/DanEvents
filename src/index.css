@@ -50,11 +50,41 @@
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Poppins', sans-serif;
   }
+  .dark {
+  --background: 260 10% 8%;
+  --foreground: 250 90% 98%;
+  
+  --card: 260 10% 12%;
+  --card-foreground: 250 90% 98%;
+  
+  --popover: 260 10% 12%;
+  --popover-foreground: 250 90% 98%;
+  
+  --primary: 261 64% 64%;
+  --primary-foreground: 0 0% 100%;
+  
+  --secondary: 250 20% 20%;
+  --secondary-foreground: 250 90% 90%;
+  
+  --muted: 260 10% 20%;
+  --muted-foreground: 250 70% 75%;
+  
+  --accent: 261 45% 20%;
+  --accent-foreground: 261 64% 80%;
+  
+  --destructive: 0 84.2% 45%;
+  --destructive-foreground: 0 0% 98%;
+  
+  --border: 260 10% 25%;
+  --input: 260 10% 25%;
+  --ring: 261 64% 64%;
+}
+
 }
 
 @layer components {
   .event-card {
-    @apply bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300;
+    @apply bg-card rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300;
   }
   
   .btn-primary {

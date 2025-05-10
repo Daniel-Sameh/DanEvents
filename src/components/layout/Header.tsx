@@ -1,15 +1,15 @@
-
 import React from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { CalendarIcon, UserIcon, LogOutIcon } from "lucide-react";
+import { ThemeToggle } from "../theme/ThemeToggle";
 
 const Header = () => {
   const { user, logout, isAdmin } = useAuth();
 
   return (
-    <header className="bg-white shadow-sm">
+    <header className="bg-background shadow-sm">
       <div className="container mx-auto py-4 px-4 md:px-6">
         <div className="flex justify-between items-center">
           <Link to="/" className="flex items-center space-x-2">
@@ -55,6 +55,7 @@ const Header = () => {
                 </Link>
               </>
             )}
+            <ThemeToggle/>
           </nav>
         </div>
       </div>

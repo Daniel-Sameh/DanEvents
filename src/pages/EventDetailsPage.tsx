@@ -72,7 +72,7 @@ const EventDetailsPage = () => {
   return (
     <Layout>
       <div className="max-w-4xl mx-auto animate-slide-up">
-        <div className="bg-white rounded-lg overflow-hidden shadow-md">
+        <div className="bg-card rounded-lg overflow-hidden shadow-md">
           <div className="h-64 sm:h-80 md:h-96 overflow-hidden">
             <img 
               src={event.imageUrl} 

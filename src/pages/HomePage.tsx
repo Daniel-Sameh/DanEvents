@@ -6,6 +6,7 @@ import { useEvents } from '@/contexts/EventContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
+import ShinyText from '@/components/ui/shinytext';
 
 const HomePage = () => {
   const { events, isLoading } = useEvents();
@@ -15,7 +16,7 @@ const HomePage = () => {
     <Layout>
       <div className="space-y-8">
         <section className="text-center space-y-4">
-          <h1 className="text-4xl md:text-5xl font-bold font-poppins bg-gradient-to-r from-danevents-500 to-danevents-700 text-transparent bg-clip-text">
+          <h1 className="text-4xl md:text-5xl font-bold font-poppins bg-gradient-to-r from-danevents-500 to-danevents-700 text-transparent bg-clip-text pb-2">
             DanEvents - Find Amazing Events
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
@@ -24,7 +25,7 @@ const HomePage = () => {
           {!user && (
             <div className="pt-2">
               <Link to="/register">
-                <Button size="lg" className="animate-fade-in">Get Started</Button>
+                <Button size="lg" className="animate-fade-in"><ShinyText text='Get Started' disabled={false} speed={3}/></Button>
               </Link>
             </div>
           )}
