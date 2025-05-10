@@ -38,6 +38,36 @@
     --radius: 0.5rem;
   }
 
+  .dark {
+    --background: 260 10% 8%;
+    --foreground: 0 0% 95%;
+    
+    --card: 260 10% 10%;
+    --card-foreground: 0 0% 95%;
+    
+    --popover: 260 10% 12%;
+    --popover-foreground: 0 0% 95%;
+    
+    --primary: 261 64% 54%;
+    --primary-foreground: 0 0% 100%;
+    
+    --secondary: 260 10% 18%;
+    --secondary-foreground: 0 0% 90%;
+    
+    --muted: 260 15% 16%;
+    --muted-foreground: 0 0% 70%;
+    
+    --accent: 261 64% 20%;
+    --accent-foreground: 0 0% 90%;
+    
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 90%;
+    
+    --border: 260 10% 20%;
+    --input: 260 10% 20%;
+    --ring: 261 64% 40%;
+  }
+
   * {
     @apply border-border;
   }
@@ -54,7 +84,7 @@
 
 @layer components {
   .event-card {
-    @apply bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300;
+    @apply bg-card rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300;
   }
   
   .btn-primary {
