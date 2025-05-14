@@ -54,16 +54,16 @@ export default {
 					foreground: 'hsl(var(--card-foreground))'
 				},
 				danevents: {
-					50: '#EDE7F6',
-					100: '#D1C4E9',
-					200: '#B39DDB',
-					300: '#9575CD',
-					400: '#7E57C2',
-					500: '#5D3FD3', // primary
-					600: '#5E35B1',
-					700: '#512DA8',
-					800: '#4527A0',
-					900: '#311B92',
+					    50: 'hsl(var(--danevents-50))',
+						100: 'hsl(var(--danevents-100))',
+						200: 'hsl(var(--danevents-200))',
+						300: 'hsl(var(--danevents-300))',
+						400: 'hsl(var(--danevents-400))',
+						500: 'hsl(var(--danevents-500))',
+						600: 'hsl(var(--danevents-600))',
+						700: 'hsl(var(--danevents-700))',
+						800: 'hsl(var(--danevents-800))',
+						900: 'hsl(var(--danevents-900))',
 				}
 			},
 			borderRadius: {
@@ -96,6 +96,11 @@ export default {
 					'0%': { 'background-position': '100%' },
 					'100%': { 'background-position': '-100%' },
 	         	},
+				'gradient': {
+					'0%': { backgroundPosition: '0% 50%' },
+					'50%': { backgroundPosition: '100% 50%' },
+					'100%': { backgroundPosition: '0% 50%' },
+		         },
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
@@ -104,6 +109,7 @@ export default {
 				'fade-out': 'fade-out 0.3s ease-out',
 				'slide-up': 'slide-up 0.3s ease-out',
 				'shine': 'shine 5s linear infinite',
+				'gradient': 'gradient 8s linear infinite'
 			}
 		}
 	},

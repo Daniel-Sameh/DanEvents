@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { useEvents } from '@/contexts/EventContext';
+import { EventProvider, useEvents } from '@/contexts/EventContext';
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Event } from '@/types';
+import { ImageUpload } from '@/components/ui/image-upload';
 
 interface EventFormProps {
   event?: Event;
@@ -25,6 +26,7 @@ const EventForm: React.FC<EventFormProps> = ({ event, onCancel, onSuccess }) => 
     price: event?.price || 0,
     imageUrl: event?.imageUrl || '',
   });
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { addEvent, updateEvent } = useEvents();
   const { toast } = useToast();
@@ -35,22 +37,59 @@ const EventForm: React.FC<EventFormProps> = ({ event, onCancel, onSuccess }) => 
     setFormData(prev => ({ ...prev, [name]: name === 'price' ? parseFloat(value) : value }));
   };
 
+  const handleImageSelected = (data: { file?: File; imageUrl?: string }) => {
+    if (data.file) {
+      setImageFile(data.file);
+      setFormData(prev => ({ ...prev, imageUrl: URL.createObjectURL(data.file) }));
+    } else if (data.imageUrl) {
+      setImageFile(null);
+      setFormData(prev => ({ ...prev, imageUrl: data.imageUrl }));
+    }
+  };
+
+  const handleImageError = (error: string) => {
+    toast({
+      title: "Image upload failed",
+      description: error,
+      variant: "destructive"
+    });
+  };
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
     try {
+      // Create FormData if we have a file
+      const submitData = new FormData();
+      
+      // Append all form fields
+      Object.entries(formData).forEach(([key, value]) => {
+        if (key !== 'imageUrl') { // Don't append imageUrl if we have a file
+          submitData.append(key, value.toString());
+          console.log(`Appending ${key}: ${value}`);
+        }
+      });
+
+      // Append file if exists
+      if (imageFile) {
+        submitData.append('file', imageFile);
+      } else if (formData.imageUrl) {
+        submitData.append('imageUrl', formData.imageUrl);
+        console.log('Appending imageUrl:', formData.imageUrl);
+      }
+      // console.log('FormData contents:');
+      // for (let pair of submitData.entries()) {
+      //   console.log(pair[0], pair[1]);
+      // }
       if (isEditMode && event) {
-        await updateEvent(event.id, formData);
+        await updateEvent(event._id, submitData);
         toast({
           title: "Event updated",
           description: "The event has been updated successfully",
         });
       } else {
-        await addEvent({
-          ...formData,
-          price: parseFloat(formData.price.toString()),
-        });
+        await addEvent(submitData);
         toast({
           title: "Event created",
           description: "The new event has been created successfully",
@@ -163,16 +202,20 @@ const EventForm: React.FC<EventFormProps> = ({ event, onCancel, onSuccess }) => 
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="imageUrl">Image URL</Label>
-            <Input
-              id="imageUrl"
-              name="imageUrl"
-              value={formData.imageUrl}
-              onChange={handleChange}
-              required
-              disabled={isSubmitting}
-              placeholder="https://example.com/image.jpg"
+            <Label htmlFor="imageUrl">Event Image</Label>
+            <ImageUpload
+                onImageSelected={handleImageSelected}
+                onError={handleImageError}
+              />
+        {formData.imageUrl && (
+          <div className="mt-2">
+            <img
+              src={formData.imageUrl}
+              alt="Event preview"
+              className="max-w-xs rounded-md"
             />
+          </div>
+        )}
           </div>
           
           <div className="pt-2 flex justify-end space-x-2">

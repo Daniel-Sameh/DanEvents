@@ -2,11 +2,12 @@
 export type UserRole = 'admin' | 'user';
 
 export interface User {
-  id: string;
+  _id?: string;
   email: string;
   name: string;
   role: UserRole;
   token?: string;
+  isAdmin?: boolean;
 }
 
 // Extended user interface for authentication that includes password field
@@ -15,7 +16,7 @@ export interface UserWithPassword extends User {
 }
 
 export interface Event {
-  id: string;
+  _id?: string;
   name: string;
   description: string;
   category: string;
@@ -23,15 +24,15 @@ export interface Event {
   venue: string;
   price: number;
   imageUrl: string;
-  createdAt: string;
-  updatedAt: string;
+  createdBy?: string;
 }
 
 export interface Booking {
-  id: string;
+  _id?: string;
   eventId: string;
   userId: string;
-  bookedAt: string;
+  status: string;
+  bookedDate: string;
 }
 
 // API response types

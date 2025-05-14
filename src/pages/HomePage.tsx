@@ -2,22 +2,28 @@
 import React from 'react';
 import Layout from '@/components/layout/Layout';
 import EventGrid from '@/components/events/EventGrid';
-import { useEvents } from '@/contexts/EventContext';
-import { useAuth } from '@/contexts/AuthContext';
+import { EventProvider, useEvents } from '@/contexts/EventContext';
+import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import ShinyText from '@/components/ui/shinytext';
-
+import GradientText from '@/components/ui/gradientText';
 const HomePage = () => {
-  const { events, isLoading } = useEvents();
+  const { events, isLoading, pagination, setPage } = useEvents();
   const { user } = useAuth();
+
+  const handlePageChange = (page: number) => {
+    setPage(page);
+  };
 
   return (
     <Layout>
       <div className="space-y-8">
         <section className="text-center space-y-4">
-          <h1 className="text-4xl md:text-5xl font-bold font-poppins bg-gradient-to-r from-danevents-500 to-danevents-700 text-transparent bg-clip-text pb-2">
-            DanEvents - Find Amazing Events
+          <h1 className="text-4xl md:text-5xl font-bold font-poppins bg-gradient-to-r from-danevents-400 to-danevents-700 text-transparent bg-clip-text pb-2">
+            <GradientText colors={['#ffaa40', '#9c40ff', '#ffaa40']} className='text-transparent bg-clip-text pb-2' animationSpeed={8} showBorder={false}>
+                DanEvents - Find Amazing Events
+            </GradientText>
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             Find and book tickets for the best events in your area. From concerts to workshops, we've got you covered.
@@ -45,7 +51,12 @@ const HomePage = () => {
               <p className="text-muted-foreground">No events found.</p>
             </div>
           ) : (
-            <EventGrid events={events} />
+            <EventGrid events={events} 
+                        pagination={{
+                          currentPage: pagination.currentPage,
+                          totalPages: pagination.totalPages
+                        }}
+                        onPageChange={handlePageChange} />
           )}
         </section>
       </div>

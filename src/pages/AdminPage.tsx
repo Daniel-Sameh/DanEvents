@@ -1,9 +1,11 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Layout from '@/components/layout/Layout';
 import EventsTable from '@/components/admin/EventsTable';
+import UsersTable from '@/components/admin/UsersTable';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import EventForm from '@/components/admin/EventForm';
-import { useEvents } from '@/contexts/EventContext';
+import { EventProvider, useEvents } from '@/contexts/EventContext';
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from '@/components/ui/button';
 import { Event } from '@/types';
@@ -18,13 +20,22 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Plus } from 'lucide-react';
+import { api } from '@/services/api';
+import { User } from '@/types';
 
 const AdminPage = () => {
   const [isCreating, setIsCreating] = useState(false);
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
   const [deleteEventId, setDeleteEventId] = useState<string | null>(null);
-  const { events, isLoading, deleteEvent } = useEvents();
+  const [users, setUsers] = useState<User[]>([]);
+  const [isLoadingUsers, setIsLoadingUsers] = useState(true);
+  const { events, isLoading, deleteEvent, pagination, setPage  } = useEvents();
   const { toast } = useToast();
+
+
+  const handlePageChange = (page: number) => {
+    setPage(page);
+  };
 
   const handleCreateClick = () => {
     setIsCreating(true);
@@ -71,6 +82,53 @@ const AdminPage = () => {
     }
   };
 
+  // Load users
+  useEffect(() => {
+    const loadUsers = async () => {
+      setIsLoadingUsers(true);
+      try {
+        const fetchedUsers = await api.getUsers();
+        for(const user of fetchedUsers) {
+          user.role = user.isAdmin ? 'admin' : 'user';
+        }
+        setUsers(fetchedUsers);
+      } catch (error) {
+        console.error('Failed to load users', error);
+        toast({
+          title: "Error loading users",
+          description: "Failed to load user list.",
+          variant: "destructive"
+        });
+      } finally {
+        setIsLoadingUsers(false);
+      }
+    };
+
+    loadUsers();
+  }, []);
+
+  const handleToggleAdmin = async (userId: string, currentRole: string) => {
+    try {
+      const updatedUser = await api.toggleUserRole(userId);
+      setUsers(users.map(user => 
+        user._id === userId 
+          ? { ...user, isAdmin: !user.isAdmin, role: user.isAdmin ? 'user' : 'admin' }
+          : user
+      ));
+      toast({
+        title: "Role updated",
+        description: `User is now a ${updatedUser.role}`,
+      });
+    } catch (error) {
+      console.error('Failed to update user role', error);
+      toast({
+        title: "Failed to update role",
+        description: "There was an error updating the user's role.",
+        variant: "destructive"
+      });
+    }
+  };
+
   return (
     <Layout>
       <div className="space-y-6">
@@ -91,22 +149,54 @@ const AdminPage = () => {
             onSuccess={handleFormSuccess}
           />
         ) : (
-          <div className="bg-white rounded-lg shadow">
-            <div className="p-6">
-              <h2 className="text-xl font-semibold mb-4">Manage Events</h2>
-              {isLoading ? (
-                <div className="py-10 flex justify-center">
-                  <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-danevents-500"></div>
+          <Tabs defaultValue="events" className="w-full">
+            <TabsList>
+              <TabsTrigger value="events">Events</TabsTrigger>
+              <TabsTrigger value="users">Users</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="events">
+              <div className="bg-card rounded-lg shadow">
+                <div className="p-6">
+                  <h2 className="text-xl font-semibold mb-4">Manage Events</h2>
+                  {isLoading ? (
+                    <div className="py-10 flex justify-center">
+                      <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-danevents-500"></div>
+                    </div>
+                  ) : (
+                    <EventsTable
+                      events={events}
+                      pagination={{
+                        currentPage: pagination.currentPage,
+                        totalPages: pagination.totalPages
+                      }}
+                      onPageChange={handlePageChange}
+                      onEdit={handleEditClick}
+                      onDelete={handleDeleteClick}
+                    />
+                  )}
                 </div>
-              ) : (
-                <EventsTable
-                  events={events}
-                  onEdit={handleEditClick}
-                  onDelete={handleDeleteClick}
-                />
-              )}
-            </div>
-          </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="users">
+              <div className="bg-card rounded-lg shadow">
+                <div className="p-6">
+                  <h2 className="text-xl font-semibold mb-4">Manage Users</h2>
+                  {isLoadingUsers ? (
+                    <div className="py-10 flex justify-center">
+                      <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-danevents-500"></div>
+                    </div>
+                  ) : (
+                    <UsersTable
+                      users={users}
+                      onToggleAdmin={handleToggleAdmin}
+                    />
+                  )}
+                </div>
+              </div>
+            </TabsContent>
+          </Tabs>
         )}
 
         <AlertDialog open={!!deleteEventId} onOpenChange={() => setDeleteEventId(null)}>

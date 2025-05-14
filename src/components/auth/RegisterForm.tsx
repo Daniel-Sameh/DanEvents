@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
+import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,8 +17,49 @@ const RegisterForm = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
+  const [errors, setErrors] = useState({
+    name: '',
+    email: '',
+    password: ''
+  });
+
+const validateForm = () => {
+    let isValid = true;
+    const newErrors = {
+      name: '',
+      email: '',
+      password: ''
+    };
+
+    if (name.length < 2) {
+      newErrors.name = 'Name must be at least 2 characters long';
+      isValid = false;
+    }
+
+    if (!email.includes('@') || !email.includes('.')) {
+      newErrors.email = 'Please enter a valid email address';
+      isValid = false;
+    }
+
+    if (password.length < 6) {
+      newErrors.password = 'Password must be at least 6 characters long';
+      isValid = false;
+    }
+
+    setErrors(newErrors);
+    return isValid;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validateForm()) {
+      toast({
+        title: "Validation Error",
+        description: "Please check the form for errors",
+        variant: "destructive",
+      });
+      return;
+    }
     setIsSubmitting(true);
 
     try {
@@ -32,7 +73,7 @@ const RegisterForm = () => {
       console.error('Registration error:', error);
       toast({
         title: "Registration failed",
-        description: "Please check your information and try again.",
+        description: error instanceof Error ? error.message : "Please check your information and try again.",
         variant: "destructive",
       });
     } finally {

@@ -2,8 +2,8 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
-import { useEvents } from '@/contexts/EventContext';
-import { useAuth } from '@/contexts/AuthContext';
+import { EventProvider, useEvents } from '@/contexts/EventContext';
+import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { CalendarIcon } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
@@ -41,7 +41,7 @@ const EventDetailsPage = () => {
 
     setIsBooking(true);
     try {
-      await bookEvent(event.id);
+      await bookEvent(event._id);
       setBookingSuccess(true);
     } catch (error) {
       console.error('Failed to book event:', error);

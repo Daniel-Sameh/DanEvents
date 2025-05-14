@@ -7,6 +7,18 @@
 
 @layer base {
   :root {
+
+    --danevents-50: 260 40% 96%;
+    --danevents-100: 260 40% 92%;
+    --danevents-200: 261 44% 86%;
+    --danevents-300: 261 54% 76%;
+    --danevents-400: 261 64% 64%;
+    --danevents-500: 261 64% 54%;
+    --danevents-600: 261 64% 44%;
+    --danevents-700: 261 64% 34%;
+    --danevents-800: 261 64% 24%;
+    --danevents-900: 261 64% 14%;
+
     --background: 250 100% 99%;
     --foreground: 260 10% 10%;
 
@@ -51,6 +63,17 @@
     font-family: 'Poppins', sans-serif;
   }
   .dark {
+
+  --danevents-50: 260 40% 97%;    /* Lightest - almost white with slight purple */
+  --danevents-100: 260 45% 90%;   /* Very light purple */
+  --danevents-200: 261 50% 85%;   /* Light purple */
+  --danevents-300: 261 55% 75%;   /* Medium light purple */
+  --danevents-400: 261 70% 70%;   /* Medium purple - more vibrant */
+  --danevents-500: 261 75% 65%;   /* Primary purple - brighter */
+  --danevents-600: 261 70% 60%;   /* Medium dark purple */
+  --danevents-700: 261 65% 55%;   /* Darker purple but still visible */
+  --danevents-800: 261 60% 50%;   /* Deep purple but not too dark */
+  --danevents-900: 261 55% 45%;
   --background: 260 10% 8%;
   --foreground: 250 90% 98%;
   

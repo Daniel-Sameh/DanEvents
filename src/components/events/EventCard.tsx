@@ -2,7 +2,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Event } from '@/types';
-import { useEvents } from '@/contexts/EventContext';
+import { EventProvider, useEvents } from '@/contexts/EventContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { CalendarIcon } from 'lucide-react';
@@ -14,7 +14,7 @@ interface EventCardProps {
 
 const EventCard: React.FC<EventCardProps> = ({ event }) => {
   const { isEventBooked } = useEvents();
-  const isBooked = isEventBooked(event.id);
+  const isBooked = isEventBooked(event._id);
   
   return (
     <Card className="event-card flex flex-col h-full overflow-hidden">
@@ -49,7 +49,7 @@ const EventCard: React.FC<EventCardProps> = ({ event }) => {
             </span>
           </Button>
         ) : (
-          <Link to={`/events/${event.id}`} className="w-full">
+          <Link to={`/events/${event._id}`} className="w-full">
             <Button className="w-full">View Details</Button>
           </Link>
         )}

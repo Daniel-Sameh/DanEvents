@@ -15,7 +15,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [authToken, setAuthToken] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -44,14 +44,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, password: string) => {
     try {
-      const { user: loggedInUser, token } = await api.login(email, password);
+      const { user, token } = await api.login(email, password);
       
-      setUser(loggedInUser);
+      const decodedToken = JSON.parse(atob(token.split('.')[1]));
+      const userWithRole = {
+        ...user,
+        _id: user.id, // map id to _id
+        role: decodedToken.role,
+        isAdmin: decodedToken.isAdmin
+      };
+      setUser(userWithRole);
       setAuthToken(token);
-      setIsAdmin(loggedInUser.role === 'admin');
+      setIsAdmin(decodedToken.isAdmin);
       
       // Store in localStorage
-      localStorage.setItem('daneventsCurrentUser', JSON.stringify(loggedInUser));
+      localStorage.setItem('daneventsCurrentUser', JSON.stringify(userWithRole));
       localStorage.setItem('daneventsAuthToken', token);
     } catch (error) {
       console.error('Login failed', error);
@@ -61,22 +68,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const register = async (name: string, email: string, password: string) => {
     try {
-      const { user: registeredUser, token } = await api.register({
+      const response = await api.register({
         name,
         email,
         password
       });
       
-      setUser(registeredUser);
-      setAuthToken(token);
-      setIsAdmin(registeredUser.role === 'admin');
-      
-      // Store in localStorage
-      localStorage.setItem('daneventsCurrentUser', JSON.stringify(registeredUser));
-      localStorage.setItem('daneventsAuthToken', token);
+      // If registration is successful, proceed with auto-login
+      if (response.message.toLowerCase().includes('success')) {
+        // Auto login after successful registration
+        await login(email, password);
+        // return Promise.resolve(response.message);
+      } else {
+        // If there's a message but not successful, throw it as an error
+        throw new Error(response.message);
+      }
     } catch (error) {
       console.error('Registration failed', error);
-      throw error;
+      throw error instanceof Error ? error : new Error('Registration failed');
     }
   };
 
@@ -105,10 +114,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   );
 };
 
-export const useAuth = () => {
+function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
-};
+}
+
+
+export { useAuth, AuthProvider };
