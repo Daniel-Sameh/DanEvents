@@ -1,55 +1,179 @@
-# DanEvents - Events Booking Website
+# 📅 DanEvents - Event Booking Platform
 
-## Project info
+A full-stack event booking platform built with React and Node.js, leveraging AI-assisted development tools.
 
-**URL**: https://lovable.dev/projects/e3837c82-d010-453a-9a51-f1968cf75309 (temporary)
+## 🎯 Project Overview
 
-**Description**: This project is for Areeb's internship assessment as a full-stack developer integrating AI tools in the development. The project is an event booking website using Monolithic architecture with Next.js (a React.js framework) and node.js for the backend.
-## How can I edit this code?
+- **Frontend Repository**: Current repository
+- **Backend Repository**: [DanEvent Backend](https://github.com/Daniel-Sameh/DanEvent)
+- **Live Demo**: [https://lovable.dev/projects/e3837c82-d010-453a-9a51-f1968cf75309](https://lovable.dev/projects/e3837c82-d010-453a-9a51-f1968cf75309)
 
-**Use your preferred IDE**
+## 🏗️ Architecture
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### Frontend (Current Repository)
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+- Built with Vite + React
+- TypeScript for type safety
+- Tailwind CSS with shadcn/ui components
+- Context API for state management
+- React Router for navigation
+- Axios for API communication
 
-Follow these steps:
+### Backend
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
+- Node.js + Express
+- MongoDB with Mongoose ODM
+- JWT for authentication
+- Cloudinary for image storage
+- RESTful API architecture
+
+### Deployment
+
+- Frontend: Vercel
+- Backend: Vercel
+- Database: MongoDB Atlas Cloud
+- Image Storage: Cloudinary
+
+## 🤖 AI Integration
+
+The project incorporates AI tools as part of the development process:
+
+1. **Lovable.dev**
+   - AI-powered development assistant
+   - Contributed code through automated commits
+   - Helped with component development and code optimization
+
+2. **GitHub Copilot (Claude 3.5 Sonnet)**
+   - Assisted with code completion and Debugging
+   - Generated documentation
+   - Helped with type definitions and interfaces
+
+## 📁 Frontend Project Structure
+
+```
+src/
+├── components/
+│   ├── admin/         # Admin dashboard components
+│   ├── auth/          # Authentication components
+│   ├── events/        # Event-related components
+│   ├── layout/        # Layout components
+│   ├── theme/         # Theme components
+│   └── ui/            # Reusable UI components
+├── contexts/          # React Context providers
+├── lib/              # Utility functions and configurations
+├── pages/            # Page components
+├── services/         # API service layer
+├── types/            # TypeScript type definitions
+└── utils/            # Helper functions
+```
+
+## 🛠️ Technology Stack
+
+### Frontend
+- React 18 with TypeScript
+- Vite for build tooling
+- TailwindCSS for styling
+- shadcn/ui for UI components
+- React Router v6 for routing
+- Axios for HTTP requests
+- React Context for state management
+- React Hook Form for form handling
+- Zod for schema validation
+
+### Backend
+- Node.js with Express
+- MongoDB with Mongoose
+- JWT for authentication
+- Cloudinary SDK
+- Express Validator
+- CORS middleware
+
+## 🎯 Key Technical Decisions
+
+1. **TypeScript Implementation**
+   - Enhanced type safety
+   - Better developer experience
+   - Improved code maintainability
+
+2. **Monolithic Architecture**
+   - Simplified development and deployment
+   - Easier to maintain for smaller teams
+   - Cost-effective hosting
+
+3. **Context API over Redux**
+   - Lighter weight solution
+   - Sufficient for current state management needs
+   - Easier to understand and maintain
+
+4. **shadcn/ui Components**
+   - High-quality, customizable components
+   - Consistent design language
+   - Accessible by default
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js & npm - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+- Git
+
+### Installation
+
+```bash
+# Clone the repository
 git clone <YOUR_GIT_URL>
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+# Navigate to project directory
+cd danevent-gatherings
 
-# Step 3: Install the necessary dependencies.
-npm i
+# Install dependencies
+npm install
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Start development server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+## ✏️ How to Edit the Code
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### Using your preferred IDE
 
-**Use GitHub Codespaces**
+1. Clone the repository
+2. Install dependencies with `npm install`
+3. Start development server with `npm run dev`
+4. Make changes and see live updates
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### Using GitHub Directly
 
-## What technologies are used for this project?
+1. Navigate to desired files
+2. Click the "Edit" button (pencil icon)
+3. Make changes and commit
 
-This project is built with:
+### Using GitHub Codespaces
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+1. Click "Code" button on repository
+2. Select "Codespaces" tab
+3. Click "New codespace"
+4. Edit in browser-based VS Code
+
+## 🏗️ Building and Deployment
+
+```bash
+# Build for production
+npm run build
+
+# Preview production build
+npm run preview
+```
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create your feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
 
