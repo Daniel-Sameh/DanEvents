@@ -6,7 +6,8 @@ A full-stack event booking platform built with React and Node.js, leveraging AI-
 
 - **Frontend Repository**: Current repository
 - **Backend Repository**: [DanEvent Backend](https://github.com/Daniel-Sameh/DanEvent)
-- **Live Demo**: [https://lovable.dev/projects/e3837c82-d010-453a-9a51-f1968cf75309](https://lovable.dev/projects/e3837c82-d010-453a-9a51-f1968cf75309)
+- **Live Demo**: [https://dan-events.vercel.app/](https://dan-events.vercel.app/)
+- **Previous Demo**: [Lovable.dev Demo](https://preview--danevent-gatherings.lovable.app/)
 
 ## 🏗️ Architecture
 
