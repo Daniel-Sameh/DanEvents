@@ -1,7 +1,7 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User } from '@/types';
 import { api } from '@/services/api';
+import { error } from 'console';
 
 interface AuthContextType {
   user: User | null;
@@ -11,6 +11,9 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
+  updateProfile: (userData: Partial<User> & { password?: string; profileImage?: File }) => Promise<void>;
+  uploadProfileImage: (profileImage: File) => Promise<{url: String, message: String}>;
+  deleteAccount: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -99,6 +102,46 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
     localStorage.removeItem('daneventsAuthToken');
   };
 
+  const updateProfile = async (userData: Partial<User> & { password?: string; profileImage?: File }) => {
+    if (!user) throw new Error('No user logged in');
+    
+    console.log("update profileImage: ", userData.profileImage);
+    try {
+      const response = await api.updateUserProfile(userData);
+      setUser(response.user);
+      localStorage.setItem('daneventsCurrentUser', JSON.stringify(response.user));
+    } catch (error) {
+      console.error('Failed to update profile:', error);
+      throw error;
+    }
+  };
+
+  const uploadProfileImage = async (profileImage: File) => {
+    if(!user){
+      throw new Error("No user logged in");
+    }
+    try{
+      
+      const imageUrl = await api.uploadProfileImage(profileImage);
+      return imageUrl;
+
+    }catch(err){
+      throw new Error(err instanceof Error? err.message : String(err));
+    }
+  }
+
+  const deleteAccount = async () => {
+    if (!user) throw new Error('No user logged in');
+    
+    try {
+      await api.deleteUserAccount();
+      logout();
+    } catch (error) {
+      console.error('Failed to delete account:', error);
+      throw error;
+    }
+  };
+
   return (
     <AuthContext.Provider value={{
       user,
@@ -107,7 +150,10 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
       authToken,
       login,
       register,
-      logout
+      logout,
+      updateProfile,
+      uploadProfileImage,
+      deleteAccount,
     }}>
       {children}
     </AuthContext.Provider>

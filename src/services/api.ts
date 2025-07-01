@@ -1,4 +1,3 @@
-
 // API service for simulating backend calls
 
 import { apiClient } from '@/lib/axios';
@@ -26,6 +25,14 @@ interface RegisterResponse {
   message: string;
   status?: number;
 }
+interface ProfileImageResponse {
+  url: string;
+  message: string;
+}
+interface UpdateUserResponse {
+  message: string;
+  user: User;
+}
 export const api = {
     // Auth endpoints
     login: async (email: string, password: string): Promise<AuthResponse> => {
@@ -40,13 +47,93 @@ export const api = {
       return response.data;
     },
 
-    
-    // Events endpoints
-    getEvents: async (page = 1, limit = 6): Promise<PaginatedResponse<Event>> => {
-      console.log('Fetching events with page:', page, 'and limit:', limit);
-      const response = await apiClient.get(`/events?page=${page}&limit=${limit}`);
+    uploadProfileImage: async (file: File): Promise<ProfileImageResponse> => {
+        // Create a FormData object to send the file
+        const formData = new FormData();
+        formData.append('profileImage', file);
+        
+        const response = await apiClient.post('/upload/profile-image', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+        
+        return response.data;
+    },
+
+    getUserData: async (): Promise<User> => {
+      const response = await apiClient.get('/account');
+      console.log('User data fetched:', response.data);
       return response.data;
     },
+    
+    updateUserProfile: async (userData: Partial<User> & { password?: string; profileImage?: File }): Promise<UpdateUserResponse> => {
+      // Create FormData if there's a file
+      const formData = new FormData();
+      
+      // Add all user data fields to FormData
+      Object.entries(userData).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          if (key === 'profileImage' && value instanceof Blob) {
+            formData.append('file', value);
+            console.log('Appending file to formData:', value);
+          } else {
+            formData.append(key, value.toString());
+          }
+        }
+      });
+
+      const response = await apiClient.put('/', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      console.log('Update response:', response.data);
+      console.log('response status:', response.status);
+      
+      return response.data;
+    },
+
+    getBookedEvents: async (): Promise<Booking[]> => {
+      const response = await apiClient.get('/events/bookings');
+      return response.data;
+    },
+    
+    deleteUserAccount: async (): Promise<void> => {
+      await apiClient.delete('/account');
+    },
+    
+    // Events endpoints
+    getEvents: async (
+    page = 1, 
+    limit = 6, 
+    filters?: {
+      category?: string;
+      startDate?: string;
+      endDate?: string;
+      booked?: 'true' | 'false' | 'all';
+      sort?: 'asc' | 'desc';
+    }
+  ): Promise<PaginatedResponse<Event>> => {
+    console.log('Fetching events with page:', page, 'and limit:', limit, 'filters:', filters);
+    const params = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString(),
+    });
+
+    // Add filters to params if they exist
+    if (filters) {
+      if (filters.category) params.append('category', filters.category);
+      if (filters.startDate) params.append('startDate', filters.startDate);
+      if (filters.endDate) params.append('endDate', filters.endDate);
+      if (filters.booked) params.append('booked', filters.booked);
+      if (filters.sort) params.append('sort', filters.sort);
+    }
+
+    const response = await apiClient.get(`/events?${params.toString()}`);
+    return response.data;
+  },
     
     getEvent: async (id: string): Promise<Event> => {
       const response = await apiClient.get(`/events/${id}`);

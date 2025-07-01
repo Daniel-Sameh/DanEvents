@@ -1,23 +1,65 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Event } from '@/types';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
 import { EventProvider, useEvents } from '@/contexts/EventContext';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { CalendarIcon } from 'lucide-react';
+import { CalendarIcon, Loader2 } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 
 const EventDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { getEvent, bookEvent, isEventBooked } = useEvents();
+  const { events, getEvent, bookEvent, isEventBooked } = useEvents();
   const { user } = useAuth();
   const [isBooking, setIsBooking] = useState(false);
   const [bookingSuccess, setBookingSuccess] = useState(false);
 
-  const event = id ? getEvent(id) : undefined;
+  const [event, setEvent] = useState<Event | null>(null);
+  const [loading, setLoading] = useState(true);
+  // const event = id ? getEvent(id) : undefined;
+  console.log(id);
   const isBooked = id ? isEventBooked(id) : false;
+
+  // Use useEffect to fetch the event data
+  useEffect(() => {
+    const fetchEvent = async () => {
+      if (!id) return;
+      
+      try {
+        setLoading(true);
+        const eventData = await getEvent(id);
+        if (eventData) {
+          setEvent(eventData);
+        }
+      } catch (error) {
+        console.error('Failed to load event:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    // Try to find the event in the current events list first
+    const existingEvent = events.find(e => e._id === id);
+    if (existingEvent) {
+      setEvent(existingEvent);
+      setLoading(false);
+    } else {
+      fetchEvent();
+    }
+  }, [id, events, getEvent]);
+
+  if (loading) {
+    return (
+      <Layout>
+        <div className="flex justify-center items-center py-12">
+          <Loader2 className="h-8 w-8 animate-spin" />
+        </div>
+      </Layout>
+    );
+  }
 
   if (!event) {
     return (

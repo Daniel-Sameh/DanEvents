@@ -13,6 +13,7 @@ import HomePage from "@/pages/HomePage";
 import EventDetailsPage from "@/pages/EventDetailsPage";
 import LoginPage from "@/pages/LoginPage";
 import RegisterPage from "@/pages/RegisterPage";
+import UserPage from "@/pages/UserPage";
 import AdminPage from "@/pages/AdminPage";
 import NotFound from "@/pages/NotFound";
 
@@ -40,6 +41,7 @@ const App = () => (
                     </ProtectedRoute>
                   } 
                 />
+                <Route path="/account" element={<UserPage/>}/>
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>

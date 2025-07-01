@@ -1,15 +1,23 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Event, Booking } from '@/types';
 import { AuthProvider, useAuth } from './AuthContext';
 import { useToast } from "@/components/ui/use-toast";
 import { api } from '@/services/api';
-import { set } from 'date-fns';
+
+interface EventFilters {
+  category?: string;
+  startDate?: string;
+  endDate?: string;
+  booked?: 'true' | 'false' | 'all';
+  sort?: 'asc' | 'desc';
+}
 
 interface EventContextType {
   events: Event[];
   bookings: Booking[];
   isLoading: boolean;
+  filters: EventFilters;
+  setFilters: (filters: EventFilters) => void;
   pagination: {
     currentPage: number;
     limit: number;
@@ -20,9 +28,8 @@ interface EventContextType {
   };
   setPage: (page: number) => void;
   setLimit: (limit: number) => void;
-  // setTotal: (total: number) => void; //tmp
-
-  getEvent: (id: string) => Event | undefined;
+  getEvent: (id: string) => Promise<Event | undefined>;
+  getBookedEvents: () => Promise<Event[]>;
   addEvent: (event: FormData) => Promise<void>;
   updateEvent: (id: string, event: FormData) => Promise<void>;
   deleteEvent: (id: string) => Promise<void>;
@@ -111,13 +118,16 @@ const EventContext = createContext<EventContextType | undefined>(undefined);
 const EventProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [events, setEvents] = useState<Event[]>([]); // Initialize with sample events
   const [bookings, setBookings] = useState<Booking[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [eventCache, setEventCache] = useState<Record<string, {data: Event, timestamp: number}>>({});
+  const CACHE_TTL = 60000; // 60 seconds in milliseconds
+  const [filters, setFilters] = useState<EventFilters>({});
   const [pagination, setPagination] = useState({
     currentPage: 1,
     limit: 6,
+    totalPages: 1,
     totalEvents: 0,
-    totalPages: 0,
-    hasMore: false,
+    hasMore: false
   });
   const { user } = useAuth();
   const { toast } = useToast();
@@ -135,7 +145,7 @@ const EventProvider: React.FC<{ children: React.ReactNode }> = ({ children }) =>
     const loadData = async () => {
       setIsLoading(true);
       try {
-        const response = await api.getEvents(pagination.currentPage, pagination.limit);
+        const response = await api.getEvents(pagination.currentPage, pagination.limit, filters);
         setEvents(response.events);
         setPagination(prev=>({
           ...prev,
@@ -164,27 +174,86 @@ const EventProvider: React.FC<{ children: React.ReactNode }> = ({ children }) =>
     };
 
     loadData();
-  }, [pagination.currentPage, pagination.limit, user, toast]);
+  }, [pagination.currentPage, pagination.limit, filters, user, toast]);
 
 
   // Get event by ID
-  const getEvent = (id: string) => {
-    return events.find(event => event._id === id);
+  const getEvent = async (id: string): Promise<Event | undefined> => {
+    const now = Date.now();
+    
+    // Check cache first and verify it's not stale
+    if (eventCache[id] && (now - eventCache[id].timestamp < CACHE_TTL)) {
+      return eventCache[id].data;
+    }
+
+    // Check if the event is in the current list
+    const existingEvent = events.find(e => e._id === id);
+    if (existingEvent) {
+      // Update cache with timestamp
+      setEventCache(prev => ({ 
+        ...prev, 
+        [id]: {
+          data: existingEvent,
+          timestamp: now
+        } 
+      }));
+      return existingEvent;
+    }
+
+    try {
+      // Fetch from API with cache-busting query param
+      const event = await api.getEvent(id);
+      // Update cache with timestamp
+      setEventCache(prev => ({ 
+        ...prev, 
+        [id]: {
+          data: event,
+          timestamp: now
+        } 
+      }));
+      return event;
+    } catch (error) {
+      console.error('Failed to fetch event:', error);
+      return undefined;
+    }
+  };
+
+  const getBookedEvents = async (): Promise<Event[]> => {
+    if (!user) {
+      throw new Error('You must be logged in to view booked events.');
+    }
+    try{
+      const bookings = await api.getBookedEvents();
+      const events = await Promise.all(bookings.map(async (bookedEvent) => {
+        const event = await getEvent(bookedEvent.eventId);
+        return event;
+      }));
+      return events;
+    }catch(err){
+      throw new Error(err instanceof Error? err.message : String(err));
+    }
+  }
+    
+
+  // Clear specific event from cache when updated
+  const clearEventCache = (id: string) => {
+    setEventCache(prev => {
+      const newCache = { ...prev };
+      delete newCache[id];
+      return newCache;
+    });
   };
 
   // Add a new event
   const addEvent = async (eventData: FormData) => {
-    if (!user || user.role !== 'admin') {
-      throw new Error('Unauthorized. Only admins can create events.');
-    }
-
+    setIsLoading(true);
     try {
       eventData.append('createdBy', user._id);
       // Call API to create event with FormData directly
       const newEvent = await api.createEvent(eventData);
       
       // Update local state
-      setEvents(prev => [...prev, newEvent]);
+      setEvents(prev => [newEvent, ...prev]);
       
       toast({
       title: "Event created",
@@ -205,32 +274,17 @@ const EventProvider: React.FC<{ children: React.ReactNode }> = ({ children }) =>
 
   // Update an existing event
     const updateEvent = async (id: string, eventData: FormData) => {
-      if (!user || user.role !== 'admin') {
-        throw new Error('Unauthorized. Only admins can update events.');
-      }
-
+      setIsLoading(true);
       try {
-        // Add user._id to eventData
-        // const newEventData = {
-        //   ...eventData,
-        //   createdBy: user._id
-        // };
         eventData.append('createdBy', user._id);
-        // console.log("eventData in eventContext: ");
-        // for (let pair of eventData.entries()) {
-        //  console.log(pair[0],": ", pair[1]);
-        // }
         // Call API to update event
-        await api.updateEvent(id, eventData);
+        const updatedEvent = await api.updateEvent(id, eventData);
         
         // Update local state
-        const updatedEvents = events.map(event => 
-          event._id === id 
-            ? { ...event, ...eventData, updatedAt: new Date().toISOString() } 
-            : event
-        );
-        
-        setEvents(updatedEvents);
+        setEvents(prev => prev.map(event => 
+          event._id === id ? updatedEvent : event
+        ));
+        clearEventCache(id); // Clear cache for this event
         
         toast({
           title: "Event updated",
@@ -251,21 +305,14 @@ const EventProvider: React.FC<{ children: React.ReactNode }> = ({ children }) =>
 
   // Delete an event
   const deleteEvent = async (id: string) => {
-    if (!user || user.role !== 'admin') {
-      throw new Error('Unauthorized. Only admins can delete events.');
-    }
-
+    setIsLoading(true);
     try {
       // Call API to delete event
       await api.deleteEvent(id);
       
       // Update local state
-      const updatedEvents = events.filter(event => event._id !== id);
-      setEvents(updatedEvents);
-      
-      // Remove associated bookings
-      const updatedBookings = bookings.filter(booking => booking.eventId !== id);
-      setBookings(updatedBookings);
+      setEvents(prev => prev.filter(event => event._id !== id));
+      clearEventCache(id); // Clear cache for this event
       
       toast({
         title: "Event deleted",
@@ -338,10 +385,13 @@ const EventProvider: React.FC<{ children: React.ReactNode }> = ({ children }) =>
       events,
       bookings,
       isLoading,
+      filters,
+      setFilters,
       pagination,
       setPage,
       setLimit,
       getEvent,
+      getBookedEvents,
       addEvent,
       updateEvent,
       deleteEvent,

@@ -27,12 +27,23 @@ const Header = () => {
                     <Button variant="outline">Admin Dashboard</Button>
                   </Link>
                 )}
-                <div className="flex items-center gap-2">
+                <Link 
+                  to="/account"
+                  className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-accent transition-colors"
+                >
                   <span className="hidden md:inline-block text-sm font-medium">
                     {user.name}
                   </span>
-                  <UserIcon className="h-5 w-5 text-muted-foreground" />
-                </div>
+                  {user.profileImageUrl && user.profileImageUrl !== "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y" ? (
+                    <img 
+                      src={user.profileImageUrl} 
+                      alt={user.name}
+                      className="h-6 w-6 rounded-full object-cover"
+                    />
+                  ) : (
+                    <UserIcon className="h-5 w-5 text-muted-foreground" />
+                  )}
+                </Link>
                 <Button
                   variant="ghost"
                   size="sm"

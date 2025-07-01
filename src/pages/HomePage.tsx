@@ -2,18 +2,25 @@
 import React from 'react';
 import Layout from '@/components/layout/Layout';
 import EventGrid from '@/components/events/EventGrid';
+import FilterBox, { FilterValues } from '@/components/events/FilterBox';
 import { EventProvider, useEvents } from '@/contexts/EventContext';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import ShinyText from '@/components/ui/shinytext';
 import GradientText from '@/components/ui/gradientText';
+
 const HomePage = () => {
-  const { events, isLoading, pagination, setPage } = useEvents();
+  const { events, isLoading, pagination, setPage, setFilters } = useEvents();
   const { user } = useAuth();
 
   const handlePageChange = (page: number) => {
     setPage(page);
+  };
+
+  const handleFilterChange = (filters: FilterValues) => {
+    setPage(1); // Reset to first page when filters change
+    setFilters(filters);
   };
 
   return (
@@ -41,6 +48,8 @@ const HomePage = () => {
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-semibold font-poppins">Upcoming Events</h2>
           </div>
+
+          <FilterBox onFilterChange={handleFilterChange} />
 
           {isLoading ? (
             <div className="flex justify-center py-12">

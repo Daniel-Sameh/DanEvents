@@ -8,6 +8,7 @@ export interface User {
   role: UserRole;
   token?: string;
   isAdmin?: boolean;
+  profileImageUrl?: string;
 }
 
 // Extended user interface for authentication that includes password field
