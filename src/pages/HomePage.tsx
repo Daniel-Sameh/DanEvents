@@ -9,11 +9,12 @@ import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import ShinyText from '@/components/ui/shinytext';
 import GradientText from '@/components/ui/gradientText';
+import { Skeleton } from "@/components/ui/skeleton";
 
 const HomePage = () => {
   const { events, isLoading, pagination, setPage, setFilters } = useEvents();
   const { user } = useAuth();
-
+  const defaultEventsNum = 6;
   const handlePageChange = (page: number) => {
     setPage(page);
   };
@@ -52,9 +53,21 @@ const HomePage = () => {
           <FilterBox onFilterChange={handleFilterChange} />
 
           {isLoading ? (
-            <div className="flex justify-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-danevents-500"></div>
-            </div>
+            <EventGrid events={Array(defaultEventsNum).fill({
+                  id: '',
+                  title: '',
+                  description: '',
+                  date: '',
+                  time: '',
+                  location: '',
+                  price: 0,
+                  category: '',
+                  image: '',
+                  organizerId: ''
+                })}    pagination={{currentPage:0, totalPages:0}}
+                       onPageChange={handlePageChange} 
+                       loading={true}/>
+            
           ) : events.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-muted-foreground">No events found.</p>
@@ -65,7 +78,7 @@ const HomePage = () => {
                           currentPage: pagination.currentPage,
                           totalPages: pagination.totalPages
                         }}
-                        onPageChange={handlePageChange} />
+                        onPageChange={handlePageChange} loading={false} />
           )}
         </section>
       </div>

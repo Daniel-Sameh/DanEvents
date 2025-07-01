@@ -291,7 +291,7 @@ const UserPage = () => {
                       <TabsContent value="grid" className="mt-0">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           {bookedEvents.map(event => (
-                            <EventCard key={event._id} event={event} />
+                            <EventCard key={event._id} event={event} loading={false} />
                           ))}
                         </div>
                       </TabsContent>

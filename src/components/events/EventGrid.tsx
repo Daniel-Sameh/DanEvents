@@ -19,27 +19,30 @@ interface EventGridProps {
     totalPages: number;
   };
   onPageChange?: (page: number) => void;
+  loading: boolean;
 }
 
 const EventGrid: React.FC<EventGridProps> = ({ 
     events, 
     pagination: { currentPage, totalPages }, 
-    onPageChange
+    onPageChange,
+    loading
   }) => {
   console.log(`EventGrid rendering with ${events.length} events`);
+  console.log(`Loading is ${loading}`);
   
   return (
     <>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {events.length > 0 ? (
+        {loading || events.length > 0 ? (
           events.map((event) => (
-            <EventCard key={event._id} event={event} />
+            <EventCard key={event._id} event={event} loading={loading} />
           ))
         ) : (
           <p className="col-span-3 text-center py-10 text-muted-foreground">No events found</p>
         )}
       </div>
-      {totalPages > 1 && (
+      {!loading && totalPages > 1 && (
         <div className="mt-6">
           <Pagination>
             <PaginationContent>
