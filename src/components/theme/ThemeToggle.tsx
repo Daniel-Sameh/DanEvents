@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useTheme } from "./ThemeProvider";
 import { toast } from "sonner";
 
-export function ThemeToggle() {
+export function ThemeToggle({ className, ...props }) {
   const { theme, setTheme } = useTheme();
 
   const toggleTheme = () => {
@@ -18,7 +18,8 @@ export function ThemeToggle() {
       variant="ghost" 
       size="icon" 
       onClick={toggleTheme}
-      className="rounded-full"
+      className={`rounded-full ${className || ""}`}
+      {...props}
     >
       {theme === "dark" ? (
         <Sun className="h-5 w-5 transition-all" />
